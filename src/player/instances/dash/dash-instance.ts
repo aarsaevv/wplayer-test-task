@@ -1,37 +1,45 @@
-import VideoPlayerInstance from '../player-instance';
+import { loadDashModule } from '../../loaders/dash-loader';
+import VideoPlayerInstance from '../instance';
 
 export class DashVideoPlayerInstance extends VideoPlayerInstance {
-    private tech: unknown;
+    private tech: typeof dashjs.MediaPlayerClass;
 
     constructor() {
         super();
     }
 
-    public init(): Promise<void> {
-        throw new Error('Method not implemented.');
+    public init() {
+        this.tech = loadDashModule();
+
+        this.registerListeners();
     }
-    public destroy(): Promise<void> {
-        throw new Error('Method not implemented.');
+
+    public destroy() {
+        this.detachMedia();
+        this.tech.destroy();
+
+        this.unregisterListeners();
     }
-    public load(url: string): Promise<void> {
-        throw new Error('Method not implemented.');
+
+    public load(url: string) {
+        this.tech.initialize(this.videoEl, url);
     }
-    public unload(): Promise<void> {
-        throw new Error('Method not implemented.');
-    }
+
     public play(): Promise<void> {
-        throw new Error('Method not implemented.');
+        return this.tech.play();
     }
-    public pause(): Promise<void> {
-        throw new Error('Method not implemented.');
+
+    public pause() {
+        return this.tech.pause();
     }
+
     public seekTo(): Promise<void> {
         throw new Error('Method not implemented.');
     }
-    protected registerListeners(): void {
+    protected registerListeners() {
         throw new Error('Method not implemented.');
     }
-    protected unregisterListeners(): void {
+    protected unregisterListeners() {
         throw new Error('Method not implemented.');
     }
 }

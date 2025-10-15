@@ -13,5 +13,3 @@ function onSourceChange(event: Event) {
 
     player.load(videoSrc);
 }
-
-// TODO: Написать адаптеры native | hls | dash

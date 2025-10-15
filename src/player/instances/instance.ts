@@ -21,7 +21,6 @@ export default abstract class VideoPlayerInstance {
     public abstract destroy(): void;
 
     public abstract load(url: string): void;
-    public abstract unload(): Promise<void>;
 
     public abstract play(): Promise<void>;
     public abstract pause(): void;
