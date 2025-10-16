@@ -11,5 +11,10 @@ function onSourceChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     const videoSrc = target.value;
 
+    player.destroy();
     player.load(videoSrc);
 }
+
+// TODO: Нормально всё типизировать
+// TODO: Разобраться с буферизацией
+// TODO: Выбирать плеер в зависимости от типа источника

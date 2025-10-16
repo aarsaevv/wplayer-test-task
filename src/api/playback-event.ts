@@ -1,4 +1,4 @@
-export enum VideoPlaybackState {
+export enum PlaybackEvent {
     // контента нет, видеотэг пуст
     IDLE = 'IDLE',
     // контент загружается, воспроизведение не начали
@@ -16,3 +16,7 @@ export enum VideoPlaybackState {
     // воспроизведение окончено
     ENDED = 'ENDED',
 }
+
+export type PlaybackEvents = {
+    playbackEvent: PlaybackEvent;
+};
