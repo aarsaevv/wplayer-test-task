@@ -15,9 +15,10 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
 
     public destroy() {
         this.unregisterListeners();
-        this.detachMedia();
 
         this.tech.destroy();
+
+        this.detachMedia();
     }
 
     public load(src: string) {
@@ -73,6 +74,10 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
     }
 
     protected unregisterListeners() {
+        if (!this.eventHandlers) {
+            return;
+        }
+
         this.tech.off('manifestLoadingStarted', this.eventHandlers.onManifestLoadingStarted);
         this.tech.off('canPlay', this.eventHandlers.onCanPlay);
         this.tech.off('playbackStarted', this.eventHandlers.onPlaybackStarted);

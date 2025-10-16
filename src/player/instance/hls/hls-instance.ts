@@ -18,7 +18,10 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
         this.unregisterListeners();
         this.tech.stopLoad();
         this.tech.detachMedia();
+
         this.tech.destroy();
+
+        this.detachMedia();
     }
 
     public load(src: string) {
@@ -94,7 +97,7 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
     }
     protected unregisterListeners() {
         if (!this.videoEl) {
-            throw new UnexpectedElementStateError('videoEl');
+            return;
         }
 
         this.tech.off('hlsManifestLoading', this.eventHandlers.onManifestLoading);

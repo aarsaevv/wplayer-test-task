@@ -17,4 +17,4 @@ function onSourceChange(event: Event) {
 
 // TODO: Нормально всё типизировать
 // TODO: Разобраться с буферизацией
-// TODO: Выбирать плеер в зависимости от типа источника
+// TODO: Рефакторинг (KISS, DRY, SOLID)

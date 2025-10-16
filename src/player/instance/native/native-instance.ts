@@ -17,11 +17,15 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
         this.registerListeners();
     }
 
-    public destroy(): Promise<void> {
+    public destroy() {
         this.unregisterListeners();
-        this.detachMedia();
 
-        return Promise.resolve(undefined);
+        if (this.videoEl) {
+            this.videoEl.src = '';
+            this.videoEl.load();
+        }
+
+        this.detachMedia();
     }
 
     public load(src: string) {
@@ -92,7 +96,7 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
 
     protected unregisterListeners() {
         if (!this.videoEl) {
-            throw new UnexpectedElementStateError('videoEl');
+            return;
         }
 
         this.videoEl.removeEventListener('loadstart', this.eventHandlers.onLoadstart);
