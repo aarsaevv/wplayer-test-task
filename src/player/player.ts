@@ -3,7 +3,7 @@ import { HlsVideoPlayerInstance } from './instance/hls/hls-instance';
 import { NativeVideoPlayerInstance } from './instance/native/native-instance';
 import Videoinstance from './instance/base';
 import { PlaybackEvent } from '../api/playback-event';
-import detectSourceType from '../api/detect-source-type';
+import detectSourceType from '../helpers/detect-source-type';
 
 export default class VideoPlayer {
     protected videoEl: HTMLVideoElement;
@@ -24,6 +24,8 @@ export default class VideoPlayer {
 
         this.currentPlaybackState = event;
         console.info('currentPlaybackState:', this.currentPlaybackState);
+
+        console.info('currentBufferInfo:', this.instance?.buffer);
     }
 
     async load(src: string) {

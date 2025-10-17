@@ -29,6 +29,12 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
 
     private tech: typeof dashjs.MediaPlayerClass;
 
+    public get buffer() {
+        const bufferLength = this.tech.getBufferLength('video');
+
+        return { length: bufferLength };
+    }
+
     constructor() {
         super();
     }

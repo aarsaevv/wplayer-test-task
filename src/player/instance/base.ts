@@ -1,3 +1,4 @@
+import type { BufferInfo } from '../../api/buffer-info';
 import type { PlaybackEvent, PlaybackEvents } from '../../api/playback-event';
 import mitt from '../event/emitter';
 
@@ -11,6 +12,7 @@ export type VideoPlayerEventHandlers = {
     onLoadstart: () => void;
     onCanplay: () => void;
     onWaiting: () => void;
+    onTimeupdate: () => void;
     // dash
     onManifestLoadingStarted: () => void;
     onCanPlay: () => void;
@@ -30,6 +32,10 @@ export default abstract class VideoPlayerInstance {
     public emitter = mitt<PlaybackEvents>();
 
     protected eventHandlers: Partial<VideoPlayerEventHandlers> | null = null;
+
+    public get buffer(): BufferInfo {
+        return { length: 0 };
+    }
 
     public attachMedia(element: HTMLVideoElement) {
         this.videoEl = element;

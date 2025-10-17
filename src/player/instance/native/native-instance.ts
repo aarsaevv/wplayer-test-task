@@ -1,3 +1,4 @@
+import type { BufferInfo } from '../../../api/buffer-info';
 import { PlaybackEvent } from '../../../api/playback-event';
 import UnexpectedElementStateError from '../../../api/unexpected-element-state-error';
 import VideoPlayerInstance, { type VideoPlayerEventHandlers } from '../base';
@@ -10,6 +11,7 @@ export enum NativeInstanceEvent {
     SEEKING = 'seeking',
     WAITING = 'waiting',
     ENDED = 'ended',
+    TIMEUPDATE = 'timeupdate',
 }
 
 export enum NativeInstanceHandler {
@@ -20,12 +22,38 @@ export enum NativeInstanceHandler {
     ON_SEEKING = 'onSeeking',
     ON_WAITING = 'onWaiting',
     ON_ENDED = 'onEnded',
+    ON_TIMEUPDATE = 'onTimeupdate',
 }
 
 type NativeEventHandlersMap = Pick<VideoPlayerEventHandlers, NativeInstanceHandler>;
 
+class NativeVideoPlayerInstanceTech {
+    public bufferInfo: BufferInfo = { length: 0 };
+
+    public updateBuffer(buffered: TimeRanges, currentTime: number) {
+        let range = 0;
+
+        while (!(buffered.start(range) <= currentTime && currentTime <= buffered.end(range))) {
+            range += 1;
+        }
+
+        const bufferStart = buffered.start(range);
+        const bufferEnd = buffered.end(range);
+
+        const length = bufferEnd - bufferStart;
+
+        this.bufferInfo = { length };
+    }
+}
+
 export class NativeVideoPlayerInstance extends VideoPlayerInstance {
     declare protected eventHandlers: NativeEventHandlersMap | null;
+
+    private tech: NativeVideoPlayerInstanceTech = new NativeVideoPlayerInstanceTech();
+
+    public get buffer(): BufferInfo {
+        return this.tech.bufferInfo;
+    }
 
     constructor() {
         super();
@@ -107,6 +135,13 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
             onEnded: () => {
                 this.emit(PlaybackEvent.ENDED);
             },
+            onTimeupdate: () => {
+                if (!this.videoEl) {
+                    throw new UnexpectedElementStateError('videoEl');
+                }
+
+                this.tech.updateBuffer(this.videoEl.buffered, this.videoEl.currentTime);
+            },
         };
 
         this.videoEl.addEventListener(NativeInstanceEvent.LOADSTART, this.eventHandlers.onLoadstart);
@@ -116,6 +151,7 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
         this.videoEl.addEventListener(NativeInstanceEvent.SEEKING, this.eventHandlers.onSeeking);
         this.videoEl.addEventListener(NativeInstanceEvent.WAITING, this.eventHandlers.onWaiting);
         this.videoEl.addEventListener(NativeInstanceEvent.ENDED, this.eventHandlers.onEnded);
+        this.videoEl.addEventListener(NativeInstanceEvent.TIMEUPDATE, this.eventHandlers.onTimeupdate);
     }
 
     protected unregisterListeners() {

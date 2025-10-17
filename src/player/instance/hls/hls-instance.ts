@@ -30,6 +30,13 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
 
     private tech: typeof Hls;
 
+    public get buffer() {
+        const bufferInfo = this.tech.mainForwardBufferInfo;
+        const bufferLength = bufferInfo.len;
+
+        return { length: bufferLength };
+    }
+
     constructor() {
         super();
     }
