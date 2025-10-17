@@ -1,9 +1,33 @@
 import { PlaybackEvent } from '../../../api/playback-event';
 import UnexpectedElementStateError from '../../../api/unexpected-element-state-error';
 import { loadHlsModule } from '../../loader/hls-loader';
-import VideoPlayerInstance from '../base';
+import VideoPlayerInstance, { type VideoPlayerEventHandlers } from '../base';
+
+export enum HlsInstanceEvent {
+    MANIFEST_LOADING = 'hlsManifestLoading',
+    MANIFEST_PARSED = 'hlsManifestParsed',
+    FRAG_LOADING = 'hlsFragLoading',
+    PLAY = 'play',
+    PAUSE = 'pause',
+    SEEKING = 'seeking',
+    ENDED = 'ended',
+}
+
+export enum HlsInstanceHandler {
+    ON_MANIFEST_LOADING = 'onManifestLoading',
+    ON_MANIFEST_PARSED = 'onManifestParsed',
+    ON_FRAG_LOADING = 'onFragLoading',
+    ON_PLAY = 'onPlay',
+    ON_PAUSE = 'onPause',
+    ON_SEEKING = 'onSeeking',
+    ON_ENDED = 'onEnded',
+}
+
+type HlsEventHandlers = Pick<VideoPlayerEventHandlers, HlsInstanceHandler>;
 
 export class HlsVideoPlayerInstance extends VideoPlayerInstance {
+    declare protected eventHandlers: HlsEventHandlers | null;
+
     private tech: typeof Hls;
 
     constructor() {
@@ -86,28 +110,28 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
             },
         };
 
-        this.tech.on('hlsManifestLoading', this.eventHandlers.onManifestLoading);
-        this.tech.on('hlsManifestParsed', this.eventHandlers.onManifestParsed);
-        this.tech.on('hlsFragLoading', this.eventHandlers.onFragLoading);
+        this.tech.on(HlsInstanceEvent.MANIFEST_LOADING, this.eventHandlers.onManifestLoading);
+        this.tech.on(HlsInstanceEvent.MANIFEST_PARSED, this.eventHandlers.onManifestParsed);
+        this.tech.on(HlsInstanceEvent.FRAG_LOADING, this.eventHandlers.onFragLoading);
 
-        this.videoEl.addEventListener('play', this.eventHandlers.onPlay);
-        this.videoEl.addEventListener('pause', this.eventHandlers.onPause);
-        this.videoEl.addEventListener('seeking', this.eventHandlers.onSeeking);
-        this.videoEl.addEventListener('ended', this.eventHandlers.onEnded);
+        this.videoEl.addEventListener(HlsInstanceEvent.PLAY, this.eventHandlers.onPlay);
+        this.videoEl.addEventListener(HlsInstanceEvent.PAUSE, this.eventHandlers.onPause);
+        this.videoEl.addEventListener(HlsInstanceEvent.SEEKING, this.eventHandlers.onSeeking);
+        this.videoEl.addEventListener(HlsInstanceEvent.ENDED, this.eventHandlers.onEnded);
     }
     protected unregisterListeners() {
-        if (!this.videoEl) {
+        if (!this.videoEl || !this.eventHandlers) {
             return;
         }
 
-        this.tech.off('hlsManifestLoading', this.eventHandlers.onManifestLoading);
-        this.tech.off('hlsManifestParsed', this.eventHandlers.onManifestParsed);
-        this.tech.off('hlsFragLoading', this.eventHandlers.onFragLoading);
+        this.tech.off(HlsInstanceEvent.MANIFEST_LOADING, this.eventHandlers.onManifestLoading);
+        this.tech.off(HlsInstanceEvent.MANIFEST_PARSED, this.eventHandlers.onManifestParsed);
+        this.tech.off(HlsInstanceEvent.FRAG_LOADING, this.eventHandlers.onFragLoading);
 
-        this.videoEl.removeEventListener('play', this.eventHandlers.onPlay);
-        this.videoEl.removeEventListener('pause', this.eventHandlers.onPause);
-        this.videoEl.removeEventListener('seeking', this.eventHandlers.onSeeking);
-        this.videoEl.removeEventListener('ended', this.eventHandlers.onEnded);
+        this.videoEl.removeEventListener(HlsInstanceEvent.PLAY, this.eventHandlers.onPlay);
+        this.videoEl.removeEventListener(HlsInstanceEvent.PAUSE, this.eventHandlers.onPause);
+        this.videoEl.removeEventListener(HlsInstanceEvent.SEEKING, this.eventHandlers.onSeeking);
+        this.videoEl.removeEventListener(HlsInstanceEvent.ENDED, this.eventHandlers.onEnded);
 
         this.eventHandlers = null;
     }

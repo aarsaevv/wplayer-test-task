@@ -1,11 +1,35 @@
 import type { PlaybackEvent, PlaybackEvents } from '../../api/playback-event';
 import mitt from '../event/emitter';
 
+export type VideoPlayerEventHandlers = {
+    // common
+    onPlay: () => void;
+    onPause: () => void;
+    onSeeking: () => void;
+    onEnded: () => void;
+    // native
+    onLoadstart: () => void;
+    onCanplay: () => void;
+    onWaiting: () => void;
+    // dash
+    onManifestLoadingStarted: () => void;
+    onCanPlay: () => void;
+    onPlaybackStarted: () => void;
+    onPlaybackPaused: () => void;
+    onPlaybackSeeking: () => void;
+    onBufferStalled: () => void;
+    onPlaybackEnded: () => void;
+    // hls
+    onManifestLoading: () => void;
+    onManifestParsed: () => void;
+    onFragLoading: () => void;
+};
+
 export default abstract class VideoPlayerInstance {
     protected videoEl: HTMLVideoElement | undefined;
     public emitter = mitt<PlaybackEvents>();
 
-    public eventHandlers: any = {};
+    protected eventHandlers: Partial<VideoPlayerEventHandlers> | null = null;
 
     public attachMedia(element: HTMLVideoElement) {
         this.videoEl = element;

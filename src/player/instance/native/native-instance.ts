@@ -1,8 +1,32 @@
 import { PlaybackEvent } from '../../../api/playback-event';
 import UnexpectedElementStateError from '../../../api/unexpected-element-state-error';
-import VideoPlayerInstance from '../base';
+import VideoPlayerInstance, { type VideoPlayerEventHandlers } from '../base';
+
+export enum NativeInstanceEvent {
+    LOADSTART = 'loadstart',
+    CANPLAY = 'canplay',
+    PLAY = 'play',
+    PAUSE = 'pause',
+    SEEKING = 'seeking',
+    WAITING = 'waiting',
+    ENDED = 'ended',
+}
+
+export enum NativeInstanceHandler {
+    ON_LOADSTART = 'onLoadstart',
+    ON_CANPLAY = 'onCanplay',
+    ON_PLAY = 'onPlay',
+    ON_PAUSE = 'onPause',
+    ON_SEEKING = 'onSeeking',
+    ON_WAITING = 'onWaiting',
+    ON_ENDED = 'onEnded',
+}
+
+type NativeEventHandlersMap = Pick<VideoPlayerEventHandlers, NativeInstanceHandler>;
 
 export class NativeVideoPlayerInstance extends VideoPlayerInstance {
+    declare protected eventHandlers: NativeEventHandlersMap | null;
+
     constructor() {
         super();
     }
@@ -11,7 +35,7 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
         return Promise.resolve(undefined);
     }
 
-    public attachMedia(element: HTMLVideoElement): void {
+    public attachMedia(element: HTMLVideoElement) {
         super.attachMedia(element);
 
         this.registerListeners();
@@ -85,27 +109,27 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
             },
         };
 
-        this.videoEl.addEventListener('loadstart', this.eventHandlers.onLoadstart);
-        this.videoEl.addEventListener('canplay', this.eventHandlers.onCanplay);
-        this.videoEl.addEventListener('play', this.eventHandlers.onPlay);
-        this.videoEl.addEventListener('pause', this.eventHandlers.onPause);
-        this.videoEl.addEventListener('seeking', this.eventHandlers.onSeeking);
-        this.videoEl.addEventListener('waiting', this.eventHandlers.onWaiting);
-        this.videoEl.addEventListener('ended', this.eventHandlers.onEnded);
+        this.videoEl.addEventListener(NativeInstanceEvent.LOADSTART, this.eventHandlers.onLoadstart);
+        this.videoEl.addEventListener(NativeInstanceEvent.CANPLAY, this.eventHandlers.onCanplay);
+        this.videoEl.addEventListener(NativeInstanceEvent.PLAY, this.eventHandlers.onPlay);
+        this.videoEl.addEventListener(NativeInstanceEvent.PAUSE, this.eventHandlers.onPause);
+        this.videoEl.addEventListener(NativeInstanceEvent.SEEKING, this.eventHandlers.onSeeking);
+        this.videoEl.addEventListener(NativeInstanceEvent.WAITING, this.eventHandlers.onWaiting);
+        this.videoEl.addEventListener(NativeInstanceEvent.ENDED, this.eventHandlers.onEnded);
     }
 
     protected unregisterListeners() {
-        if (!this.videoEl) {
+        if (!this.videoEl || !this.eventHandlers) {
             return;
         }
 
-        this.videoEl.removeEventListener('loadstart', this.eventHandlers.onLoadstart);
-        this.videoEl.removeEventListener('canplay', this.eventHandlers.onCanplay);
-        this.videoEl.removeEventListener('play', this.eventHandlers.onPlay);
-        this.videoEl.removeEventListener('pause', this.eventHandlers.onPause);
-        this.videoEl.removeEventListener('seeking', this.eventHandlers.onSeeking);
-        this.videoEl.removeEventListener('waiting', this.eventHandlers.onWaiting);
-        this.videoEl.removeEventListener('ended', this.eventHandlers.onEnded);
+        this.videoEl.removeEventListener(NativeInstanceEvent.LOADSTART, this.eventHandlers.onLoadstart);
+        this.videoEl.removeEventListener(NativeInstanceEvent.CANPLAY, this.eventHandlers.onCanplay);
+        this.videoEl.removeEventListener(NativeInstanceEvent.PLAY, this.eventHandlers.onPlay);
+        this.videoEl.removeEventListener(NativeInstanceEvent.PAUSE, this.eventHandlers.onPause);
+        this.videoEl.removeEventListener(NativeInstanceEvent.SEEKING, this.eventHandlers.onSeeking);
+        this.videoEl.removeEventListener(NativeInstanceEvent.WAITING, this.eventHandlers.onWaiting);
+        this.videoEl.removeEventListener(NativeInstanceEvent.ENDED, this.eventHandlers.onEnded);
 
         this.eventHandlers = null;
     }

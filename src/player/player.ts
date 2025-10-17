@@ -3,6 +3,7 @@ import { HlsVideoPlayerInstance } from './instance/hls/hls-instance';
 import { NativeVideoPlayerInstance } from './instance/native/native-instance';
 import Videoinstance from './instance/base';
 import { PlaybackEvent } from '../api/playback-event';
+import detectSourceType from '../api/detect-source-type';
 
 export default class VideoPlayer {
     protected videoEl: HTMLVideoElement;
@@ -17,6 +18,10 @@ export default class VideoPlayer {
     protected currentPlaybackState: PlaybackEvent = PlaybackEvent.IDLE;
 
     protected setCurrentPlaybackState(event: PlaybackEvent) {
+        if (this.currentPlaybackState === event) {
+            return;
+        }
+
         this.currentPlaybackState = event;
         console.info('currentPlaybackState:', this.currentPlaybackState);
     }
@@ -30,7 +35,7 @@ export default class VideoPlayer {
             return;
         }
 
-        const type = await this.detectSourceType(src);
+        const type = await detectSourceType(src);
 
         switch (type) {
             case 'native':
@@ -63,36 +68,5 @@ export default class VideoPlayer {
         }
 
         this.setCurrentPlaybackState(PlaybackEvent.IDLE);
-    }
-
-    private async detectSourceType(url: string) {
-        try {
-            const response = await fetch(url, { method: 'HEAD' });
-            const contentType = response.headers.get('Content-Type') ?? '';
-
-            if (contentType.startsWith('video/') || url.endsWith('.mp4')) {
-                return 'native';
-            }
-
-            if (contentType.includes('application/dash+xml') || url.endsWith('.mpd')) {
-                return 'dash';
-            }
-
-            if (contentType.includes('application/x-mpegURL') || url.endsWith('.m3u8')) {
-                return 'hls';
-            }
-        } catch (_) {
-            if (url.endsWith('.mp4')) {
-                return 'native';
-            }
-
-            if (url.endsWith('.mpd')) {
-                return 'dash';
-            }
-
-            if (url.endsWith('.m3u8')) {
-                return 'hls';
-            }
-        }
     }
 }

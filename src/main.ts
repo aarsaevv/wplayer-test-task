@@ -15,6 +15,6 @@ function onSourceChange(event: Event) {
     player.load(videoSrc);
 }
 
-// TODO: Нормально всё типизировать
 // TODO: Разобраться с буферизацией
+// TODO: Разобраться с некорректными событиями
 // TODO: Рефакторинг (KISS, DRY, SOLID)
