@@ -5,20 +5,20 @@ import VideoPlayerInstance, { type VideoPlayerEventHandlers } from '../base';
 export enum DashInstanceEvent {
     MANIFEST_LOADING_STARTED = 'manifestLoadingStarted',
     CAN_PLAY = 'canPlay',
-    PLAYBACK_STARTED = 'playbackStarted',
+    PLAYBACK_PLAYING = 'playbackPlaying',
     PLAYBACK_PAUSED = 'playbackPaused',
     PLAYBACK_SEEKING = 'playbackSeeking',
-    BUFFER_STALLED = 'bufferStalled',
+    FRAGMENT_LOADING_STARTED = 'fragmentLoadingStarted',
     PLAYBACK_ENDED = 'playbackEnded',
 }
 
 export enum DashInstanceHandler {
     ON_MANIFEST_LOADING_STARTED = 'onManifestLoadingStarted',
     ON_CAN_PLAY = 'onCanPlay',
-    ON_PLAYBACK_STARTED = 'onPlaybackStarted',
+    ON_PLAYBACK_PLAYING = 'onPlaybackPlaying',
     ON_PLAYBACK_PAUSED = 'onPlaybackPaused',
     ON_PLAYBACK_SEEKING = 'onPlaybackSeeking',
-    ON_BUFFER_STALLED = 'onBufferStalled',
+    ON_FRAGMENT_LOADING_STARTED = 'onFragmentLoadingStarted',
     ON_PLAYBACK_ENDED = 'onPlaybackEnded',
 }
 
@@ -71,7 +71,7 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
             onCanPlay: () => {
                 this.emit(PlaybackEvent.READY);
             },
-            onPlaybackStarted: () => {
+            onPlaybackPlaying: () => {
                 this.emit(PlaybackEvent.PLAYING);
             },
             onPlaybackPaused: () => {
@@ -80,7 +80,7 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
             onPlaybackSeeking: () => {
                 this.emit(PlaybackEvent.SEEKING);
             },
-            onBufferStalled: () => {
+            onFragmentLoadingStarted: () => {
                 this.emit(PlaybackEvent.BUFFERING);
             },
             onPlaybackEnded: () => {
@@ -90,10 +90,10 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
 
         this.tech.on(DashInstanceEvent.MANIFEST_LOADING_STARTED, this.eventHandlers.onManifestLoadingStarted);
         this.tech.on(DashInstanceEvent.CAN_PLAY, this.eventHandlers.onCanPlay);
-        this.tech.on(DashInstanceEvent.PLAYBACK_STARTED, this.eventHandlers.onPlaybackStarted);
+        this.tech.on(DashInstanceEvent.PLAYBACK_PLAYING, this.eventHandlers.onPlaybackPlaying);
         this.tech.on(DashInstanceEvent.PLAYBACK_PAUSED, this.eventHandlers.onPlaybackPaused);
         this.tech.on(DashInstanceEvent.PLAYBACK_SEEKING, this.eventHandlers.onPlaybackSeeking);
-        this.tech.on(DashInstanceEvent.BUFFER_STALLED, this.eventHandlers.onBufferStalled);
+        this.tech.on(DashInstanceEvent.FRAGMENT_LOADING_STARTED, this.eventHandlers.onFragmentLoadingStarted);
         this.tech.on(DashInstanceEvent.PLAYBACK_ENDED, this.eventHandlers.onPlaybackEnded);
     }
 
@@ -104,10 +104,10 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
 
         this.tech.off(DashInstanceEvent.MANIFEST_LOADING_STARTED, this.eventHandlers.onManifestLoadingStarted);
         this.tech.off(DashInstanceEvent.CAN_PLAY, this.eventHandlers.onCanPlay);
-        this.tech.off(DashInstanceEvent.PLAYBACK_STARTED, this.eventHandlers.onPlaybackStarted);
+        this.tech.off(DashInstanceEvent.PLAYBACK_PLAYING, this.eventHandlers.onPlaybackPlaying);
         this.tech.off(DashInstanceEvent.PLAYBACK_PAUSED, this.eventHandlers.onPlaybackPaused);
         this.tech.off(DashInstanceEvent.PLAYBACK_SEEKING, this.eventHandlers.onPlaybackSeeking);
-        this.tech.off(DashInstanceEvent.BUFFER_STALLED, this.eventHandlers.onBufferStalled);
+        this.tech.off(DashInstanceEvent.FRAGMENT_LOADING_STARTED, this.eventHandlers.onFragmentLoadingStarted);
         this.tech.off(DashInstanceEvent.PLAYBACK_ENDED, this.eventHandlers.onPlaybackEnded);
 
         this.eventHandlers = null;

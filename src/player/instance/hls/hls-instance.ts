@@ -7,7 +7,7 @@ export enum HlsInstanceEvent {
     MANIFEST_LOADING = 'hlsManifestLoading',
     MANIFEST_PARSED = 'hlsManifestParsed',
     FRAG_LOADING = 'hlsFragLoading',
-    PLAY = 'play',
+    PLAYING = 'playing',
     PAUSE = 'pause',
     SEEKING = 'seeking',
     ENDED = 'ended',
@@ -17,7 +17,7 @@ export enum HlsInstanceHandler {
     ON_MANIFEST_LOADING = 'onManifestLoading',
     ON_MANIFEST_PARSED = 'onManifestParsed',
     ON_FRAG_LOADING = 'onFragLoading',
-    ON_PLAY = 'onPlay',
+    ON_PLAYING = 'onPlaying',
     ON_PAUSE = 'onPause',
     ON_SEEKING = 'onSeeking',
     ON_ENDED = 'onEnded',
@@ -96,7 +96,7 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
             onFragLoading: () => {
                 this.emit(PlaybackEvent.BUFFERING);
             },
-            onPlay: () => {
+            onPlaying: () => {
                 this.emit(PlaybackEvent.PLAYING);
             },
             onPause: () => {
@@ -114,7 +114,7 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
         this.tech.on(HlsInstanceEvent.MANIFEST_PARSED, this.eventHandlers.onManifestParsed);
         this.tech.on(HlsInstanceEvent.FRAG_LOADING, this.eventHandlers.onFragLoading);
 
-        this.videoEl.addEventListener(HlsInstanceEvent.PLAY, this.eventHandlers.onPlay);
+        this.videoEl.addEventListener(HlsInstanceEvent.PLAYING, this.eventHandlers.onPlaying);
         this.videoEl.addEventListener(HlsInstanceEvent.PAUSE, this.eventHandlers.onPause);
         this.videoEl.addEventListener(HlsInstanceEvent.SEEKING, this.eventHandlers.onSeeking);
         this.videoEl.addEventListener(HlsInstanceEvent.ENDED, this.eventHandlers.onEnded);
@@ -128,7 +128,7 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
         this.tech.off(HlsInstanceEvent.MANIFEST_PARSED, this.eventHandlers.onManifestParsed);
         this.tech.off(HlsInstanceEvent.FRAG_LOADING, this.eventHandlers.onFragLoading);
 
-        this.videoEl.removeEventListener(HlsInstanceEvent.PLAY, this.eventHandlers.onPlay);
+        this.videoEl.removeEventListener(HlsInstanceEvent.PLAYING, this.eventHandlers.onPlaying);
         this.videoEl.removeEventListener(HlsInstanceEvent.PAUSE, this.eventHandlers.onPause);
         this.videoEl.removeEventListener(HlsInstanceEvent.SEEKING, this.eventHandlers.onSeeking);
         this.videoEl.removeEventListener(HlsInstanceEvent.ENDED, this.eventHandlers.onEnded);

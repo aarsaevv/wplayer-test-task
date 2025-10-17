@@ -3,7 +3,7 @@ import mitt from '../event/emitter';
 
 export type VideoPlayerEventHandlers = {
     // common
-    onPlay: () => void;
+    onPlaying: () => void;
     onPause: () => void;
     onSeeking: () => void;
     onEnded: () => void;
@@ -14,10 +14,10 @@ export type VideoPlayerEventHandlers = {
     // dash
     onManifestLoadingStarted: () => void;
     onCanPlay: () => void;
-    onPlaybackStarted: () => void;
+    onPlaybackPlaying: () => void;
     onPlaybackPaused: () => void;
     onPlaybackSeeking: () => void;
-    onBufferStalled: () => void;
+    onFragmentLoadingStarted: () => void;
     onPlaybackEnded: () => void;
     // hls
     onManifestLoading: () => void;
