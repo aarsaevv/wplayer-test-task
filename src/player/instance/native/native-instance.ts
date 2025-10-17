@@ -33,7 +33,7 @@ class NativeVideoPlayerInstanceTech {
     public updateBuffer(buffered: TimeRanges, currentTime: number) {
         let range = 0;
 
-        while (!(buffered.start(range) <= currentTime && currentTime <= buffered.end(range))) {
+        while (buffered.start(range) > currentTime || currentTime > buffered.end(range)) {
             range += 1;
         }
 
@@ -141,6 +141,8 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
                 }
 
                 this.tech.updateBuffer(this.videoEl.buffered, this.videoEl.currentTime);
+
+                this.emit(PlaybackEvent.TIMEUPDATE);
             },
         };
 
@@ -166,6 +168,7 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
         this.videoEl.removeEventListener(NativeInstanceEvent.SEEKING, this.eventHandlers.onSeeking);
         this.videoEl.removeEventListener(NativeInstanceEvent.WAITING, this.eventHandlers.onWaiting);
         this.videoEl.removeEventListener(NativeInstanceEvent.ENDED, this.eventHandlers.onEnded);
+        this.videoEl.removeEventListener(NativeInstanceEvent.TIMEUPDATE, this.eventHandlers.onTimeupdate);
 
         this.eventHandlers = null;
     }

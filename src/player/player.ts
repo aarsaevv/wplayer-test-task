@@ -4,6 +4,7 @@ import { NativeVideoPlayerInstance } from './instance/native/native-instance';
 import Videoinstance from './instance/base';
 import { PlaybackEvent } from '../api/playback-event';
 import detectSourceType from '../helpers/detect-source-type';
+import { throttle } from '../api/async';
 
 export default class VideoPlayer {
     protected videoEl: HTMLVideoElement;
@@ -15,17 +16,28 @@ export default class VideoPlayer {
         this.setCurrentPlaybackState(PlaybackEvent.IDLE);
     }
 
+    /**
+     * TODO: Хорошо бы выводить буфер в процессе буферизации в будущем
+     */
+    protected logBufferInfo = throttle(() => {
+        console.info('currentBufferInfo:', this.instance?.buffer);
+    }, 1000);
+
     protected currentPlaybackState: PlaybackEvent = PlaybackEvent.IDLE;
 
     protected setCurrentPlaybackState(event: PlaybackEvent) {
+        if (this.currentPlaybackState === PlaybackEvent.TIMEUPDATE) {
+            this.logBufferInfo();
+
+            return;
+        }
+
         if (this.currentPlaybackState === event) {
             return;
         }
 
         this.currentPlaybackState = event;
         console.info('currentPlaybackState:', this.currentPlaybackState);
-
-        console.info('currentBufferInfo:', this.instance?.buffer);
     }
 
     async load(src: string) {

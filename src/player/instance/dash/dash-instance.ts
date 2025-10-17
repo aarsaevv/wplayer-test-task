@@ -10,6 +10,7 @@ export enum DashInstanceEvent {
     PLAYBACK_SEEKING = 'playbackSeeking',
     FRAGMENT_LOADING_STARTED = 'fragmentLoadingStarted',
     PLAYBACK_ENDED = 'playbackEnded',
+    PLAYBACK_TIME_UPDATED = 'playbackTimeUpdated',
 }
 
 export enum DashInstanceHandler {
@@ -20,6 +21,7 @@ export enum DashInstanceHandler {
     ON_PLAYBACK_SEEKING = 'onPlaybackSeeking',
     ON_FRAGMENT_LOADING_STARTED = 'onFragmentLoadingStarted',
     ON_PLAYBACK_ENDED = 'onPlaybackEnded',
+    ON_PLAYBACK_TIME_UPDATED = 'onPlaybackTimeUpdated',
 }
 
 type DashEventHandlers = Pick<VideoPlayerEventHandlers, DashInstanceHandler>;
@@ -92,6 +94,9 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
             onPlaybackEnded: () => {
                 this.emit(PlaybackEvent.ENDED);
             },
+            onPlaybackTimeUpdated: () => {
+                this.emit(PlaybackEvent.TIMEUPDATE);
+            },
         };
 
         this.tech.on(DashInstanceEvent.MANIFEST_LOADING_STARTED, this.eventHandlers.onManifestLoadingStarted);
@@ -101,6 +106,7 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
         this.tech.on(DashInstanceEvent.PLAYBACK_SEEKING, this.eventHandlers.onPlaybackSeeking);
         this.tech.on(DashInstanceEvent.FRAGMENT_LOADING_STARTED, this.eventHandlers.onFragmentLoadingStarted);
         this.tech.on(DashInstanceEvent.PLAYBACK_ENDED, this.eventHandlers.onPlaybackEnded);
+        this.tech.on(DashInstanceEvent.PLAYBACK_TIME_UPDATED, this.eventHandlers.onPlaybackTimeUpdated);
     }
 
     protected unregisterListeners() {
@@ -115,6 +121,7 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
         this.tech.off(DashInstanceEvent.PLAYBACK_SEEKING, this.eventHandlers.onPlaybackSeeking);
         this.tech.off(DashInstanceEvent.FRAGMENT_LOADING_STARTED, this.eventHandlers.onFragmentLoadingStarted);
         this.tech.off(DashInstanceEvent.PLAYBACK_ENDED, this.eventHandlers.onPlaybackEnded);
+        this.tech.off(DashInstanceEvent.PLAYBACK_TIME_UPDATED, this.eventHandlers.onPlaybackTimeUpdated);
 
         this.eventHandlers = null;
     }

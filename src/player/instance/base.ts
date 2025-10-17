@@ -21,6 +21,7 @@ export type VideoPlayerEventHandlers = {
     onPlaybackSeeking: () => void;
     onFragmentLoadingStarted: () => void;
     onPlaybackEnded: () => void;
+    onPlaybackTimeUpdated: () => void;
     // hls
     onManifestLoading: () => void;
     onManifestParsed: () => void;

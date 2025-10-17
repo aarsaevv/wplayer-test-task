@@ -11,6 +11,7 @@ export enum HlsInstanceEvent {
     PAUSE = 'pause',
     SEEKING = 'seeking',
     ENDED = 'ended',
+    TIMEUPDATE = 'timeupdate',
 }
 
 export enum HlsInstanceHandler {
@@ -21,6 +22,7 @@ export enum HlsInstanceHandler {
     ON_PAUSE = 'onPause',
     ON_SEEKING = 'onSeeking',
     ON_ENDED = 'onEnded',
+    ON_TIMEUPDATE = 'onTimeupdate',
 }
 
 type HlsEventHandlers = Pick<VideoPlayerEventHandlers, HlsInstanceHandler>;
@@ -115,6 +117,9 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
             onEnded: () => {
                 this.emit(PlaybackEvent.ENDED);
             },
+            onTimeupdate: () => {
+                this.emit(PlaybackEvent.TIMEUPDATE);
+            },
         };
 
         this.tech.on(HlsInstanceEvent.MANIFEST_LOADING, this.eventHandlers.onManifestLoading);
@@ -125,6 +130,7 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
         this.videoEl.addEventListener(HlsInstanceEvent.PAUSE, this.eventHandlers.onPause);
         this.videoEl.addEventListener(HlsInstanceEvent.SEEKING, this.eventHandlers.onSeeking);
         this.videoEl.addEventListener(HlsInstanceEvent.ENDED, this.eventHandlers.onEnded);
+        this.videoEl.addEventListener(HlsInstanceEvent.TIMEUPDATE, this.eventHandlers.onTimeupdate);
     }
     protected unregisterListeners() {
         if (!this.videoEl || !this.eventHandlers) {
@@ -139,6 +145,7 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
         this.videoEl.removeEventListener(HlsInstanceEvent.PAUSE, this.eventHandlers.onPause);
         this.videoEl.removeEventListener(HlsInstanceEvent.SEEKING, this.eventHandlers.onSeeking);
         this.videoEl.removeEventListener(HlsInstanceEvent.ENDED, this.eventHandlers.onEnded);
+        this.videoEl.removeEventListener(HlsInstanceEvent.TIMEUPDATE, this.eventHandlers.onTimeupdate);
 
         this.eventHandlers = null;
     }

@@ -15,6 +15,8 @@ export enum PlaybackEvent {
     BUFFERING = 'BUFFERING',
     // воспроизведение окончено
     ENDED = 'ENDED',
+    //
+    TIMEUPDATE = 'TIMEUPDATE',
 }
 
 export type PlaybackEvents = {
