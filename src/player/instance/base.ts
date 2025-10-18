@@ -1,6 +1,6 @@
 import type { BufferInfo } from '../../api/buffer-info';
 import type { PlaybackEvent, PlaybackEvents } from '../../api/playback-event';
-import mitt from '../event/emitter';
+import mitt from '../../helpers/emitter';
 
 export type VideoPlayerEventHandlers = {
     // common

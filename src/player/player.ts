@@ -4,7 +4,7 @@ import { NativeVideoPlayerInstance } from './instance/native/native-instance';
 import Videoinstance from './instance/base';
 import { PlaybackEvent } from '../api/playback-event';
 import detectSourceType from '../helpers/detect-source-type';
-import { throttle } from '../api/async';
+import { throttle } from '../helpers/async';
 
 export default class VideoPlayer {
     protected videoEl: HTMLVideoElement;

@@ -14,5 +14,3 @@ function onSourceChange(event: Event) {
     player.destroy();
     player.load(videoSrc);
 }
-
-// TODO: Разобраться с буферизацией
