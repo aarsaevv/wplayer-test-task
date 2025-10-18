@@ -1,10 +1,8 @@
-import { DashVideoPlayerInstance } from './instance/dash/dash-instance';
-import { HlsVideoPlayerInstance } from './instance/hls/hls-instance';
-import { NativeVideoPlayerInstance } from './instance/native/native-instance';
 import Videoinstance from './instance/base';
 import { PlaybackEvent } from '../api/playback-event';
 import detectSourceType from '../helpers/detect-source-type';
 import { throttle } from '../helpers/async';
+import createVideoPlayerInstance from './instance/create-instance';
 
 export default class VideoPlayer {
     protected videoEl: HTMLVideoElement;
@@ -45,23 +43,13 @@ export default class VideoPlayer {
             if (this.instance) {
                 this.instance.destroy();
             }
+
             this.setCurrentPlaybackState(PlaybackEvent.IDLE);
             return;
         }
 
-        const type = await detectSourceType(src);
-
-        switch (type) {
-            case 'native':
-                this.instance = new NativeVideoPlayerInstance();
-                break;
-            case 'dash':
-                this.instance = new DashVideoPlayerInstance();
-                break;
-            case 'hls':
-                this.instance = new HlsVideoPlayerInstance();
-                break;
-        }
+        const sourceType = await detectSourceType(src);
+        this.instance = createVideoPlayerInstance(sourceType);
 
         if (this.instance) {
             this.instance.init();
@@ -78,6 +66,7 @@ export default class VideoPlayer {
     destroy() {
         if (this.instance) {
             this.instance.destroy();
+
             this.instance.emitter.off('playbackEvent');
         }
 

@@ -39,10 +39,6 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
         return { length: bufferLength };
     }
 
-    constructor() {
-        super();
-    }
-
     public init() {
         this.tech = loadHlsModule();
     }

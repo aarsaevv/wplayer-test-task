@@ -37,10 +37,6 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
         return { length: bufferLength };
     }
 
-    constructor() {
-        super();
-    }
-
     public init() {
         this.tech = loadDashModule();
     }

@@ -55,10 +55,6 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
         return this.tech.bufferInfo;
     }
 
-    constructor() {
-        super();
-    }
-
     public init() {
         return Promise.resolve(undefined);
     }
