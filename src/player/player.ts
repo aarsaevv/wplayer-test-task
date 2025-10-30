@@ -1,5 +1,5 @@
-import Videoinstance from './instance/base';
-import { PlaybackEvent } from '../api/playback-event';
+import VideoPlayerInstance from './instance/base';
+import { PlaybackState } from '../api/playback-state';
 import detectSourceType from '../helpers/detect-source-type';
 import { throttle } from '../helpers/async';
 import createVideoPlayerInstance from './instance/create-instance';
@@ -7,11 +7,11 @@ import createVideoPlayerInstance from './instance/create-instance';
 export default class VideoPlayer {
     protected videoEl: HTMLVideoElement;
 
-    private instance: Videoinstance | null = null;
+    private instance: VideoPlayerInstance | null = null;
 
     constructor(videoEl: HTMLVideoElement) {
         this.videoEl = videoEl;
-        this.setCurrentPlaybackState(PlaybackEvent.IDLE);
+        this.setCurrentPlaybackState(PlaybackState.IDLE);
     }
 
     /**
@@ -21,20 +21,20 @@ export default class VideoPlayer {
         console.info('currentBufferInfo:', this.instance?.buffer);
     }, 1000);
 
-    protected currentPlaybackState: PlaybackEvent = PlaybackEvent.IDLE;
+    protected currentPlaybackState: PlaybackState = PlaybackState.IDLE;
 
-    protected setCurrentPlaybackState(event: PlaybackEvent) {
-        if (this.currentPlaybackState === PlaybackEvent.TIMEUPDATE) {
+    protected setCurrentPlaybackState(state: PlaybackState) {
+        if (this.currentPlaybackState === PlaybackState.TIMEUPDATE) {
             this.logBufferInfo();
 
             return;
         }
 
-        if (this.currentPlaybackState === event) {
+        if (this.currentPlaybackState === state) {
             return;
         }
 
-        this.currentPlaybackState = event;
+        this.currentPlaybackState = state;
         console.info('currentPlaybackState:', this.currentPlaybackState);
     }
 
@@ -44,7 +44,7 @@ export default class VideoPlayer {
                 this.instance.destroy();
             }
 
-            this.setCurrentPlaybackState(PlaybackEvent.IDLE);
+            this.setCurrentPlaybackState(PlaybackState.IDLE);
             return;
         }
 
@@ -57,8 +57,8 @@ export default class VideoPlayer {
             this.instance.load(src);
             this.instance.play();
 
-            this.instance.emitter.on('playbackEvent', (event) => {
-                this.setCurrentPlaybackState(event);
+            this.instance.emitter.on('playbackState', (state: PlaybackState) => {
+                this.setCurrentPlaybackState(state);
             });
         }
     }
@@ -67,9 +67,11 @@ export default class VideoPlayer {
         if (this.instance) {
             this.instance.destroy();
 
-            this.instance.emitter.off('playbackEvent');
+            this.instance.emitter.off('playbackState');
+
+            this.instance = null;
         }
 
-        this.setCurrentPlaybackState(PlaybackEvent.IDLE);
+        this.setCurrentPlaybackState(PlaybackState.IDLE);
     }
 }

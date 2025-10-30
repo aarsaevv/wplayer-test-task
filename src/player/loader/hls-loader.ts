@@ -1,3 +1,9 @@
+import UnexpectedLoadError from './unexpected-loader-error';
+
 export function loadHlsModule() {
-    return new Hls();
+    if (!window.Hls) {
+        throw new UnexpectedLoadError('hls.js');
+    }
+
+    return new window.Hls();
 }

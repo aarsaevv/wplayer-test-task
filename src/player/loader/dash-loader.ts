@@ -1,3 +1,9 @@
+import UnexpectedLoadError from './unexpected-loader-error';
+
 export function loadDashModule() {
-    return dashjs.MediaPlayer().create();
+    if (!window.dashjs) {
+        throw new UnexpectedLoadError('dashjs');
+    }
+
+    return window.dashjs.MediaPlayer().create();
 }

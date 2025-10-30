@@ -1,4 +1,4 @@
-import { PlaybackEvent } from '../../../api/playback-event';
+import { PlaybackState } from '../../../api/playback-state';
 import UnexpectedElementStateError from '../../../api/unexpected-element-state-error';
 import { loadHlsModule } from '../../loader/hls-loader';
 import VideoPlayerInstance, { type VideoPlayerEventHandlers } from '../base';
@@ -30,7 +30,7 @@ type HlsEventHandlers = Pick<VideoPlayerEventHandlers, HlsInstanceHandler>;
 export class HlsVideoPlayerInstance extends VideoPlayerInstance {
     declare protected eventHandlers: HlsEventHandlers | null;
 
-    private tech: typeof Hls;
+    private tech: typeof window.Hls;
 
     public get buffer() {
         const bufferInfo = this.tech.mainForwardBufferInfo;
@@ -93,28 +93,28 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
 
         this.eventHandlers = {
             onManifestLoading: () => {
-                this.emit(PlaybackEvent.LOADING);
+                this.emit(PlaybackState.LOADING);
             },
             onManifestParsed: () => {
-                this.emit(PlaybackEvent.READY);
+                this.emit(PlaybackState.READY);
             },
             onFragLoading: () => {
-                this.emit(PlaybackEvent.BUFFERING);
+                this.emit(PlaybackState.BUFFERING);
             },
             onPlaying: () => {
-                this.emit(PlaybackEvent.PLAYING);
+                this.emit(PlaybackState.PLAYING);
             },
             onPause: () => {
-                this.emit(PlaybackEvent.PAUSED);
+                this.emit(PlaybackState.PAUSED);
             },
             onSeeking: () => {
-                this.emit(PlaybackEvent.SEEKING);
+                this.emit(PlaybackState.SEEKING);
             },
             onEnded: () => {
-                this.emit(PlaybackEvent.ENDED);
+                this.emit(PlaybackState.ENDED);
             },
             onTimeupdate: () => {
-                this.emit(PlaybackEvent.TIMEUPDATE);
+                this.emit(PlaybackState.TIMEUPDATE);
             },
         };
 

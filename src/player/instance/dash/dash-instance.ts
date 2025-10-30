@@ -1,4 +1,4 @@
-import { PlaybackEvent } from '../../../api/playback-event';
+import { PlaybackState } from '../../../api/playback-state';
 import { loadDashModule } from '../../loader/dash-loader';
 import VideoPlayerInstance, { type VideoPlayerEventHandlers } from '../base';
 
@@ -29,7 +29,7 @@ type DashEventHandlers = Pick<VideoPlayerEventHandlers, DashInstanceHandler>;
 export class DashVideoPlayerInstance extends VideoPlayerInstance {
     declare protected eventHandlers: DashEventHandlers | null;
 
-    private tech: typeof dashjs.MediaPlayerClass;
+    private tech: typeof window.dashjs.MediaPlayerClass;
 
     public get buffer() {
         const bufferLength = this.tech.getBufferLength('video');
@@ -70,28 +70,28 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
     protected registerListeners() {
         this.eventHandlers = {
             onManifestLoadingStarted: () => {
-                this.emit(PlaybackEvent.LOADING);
+                this.emit(PlaybackState.LOADING);
             },
             onCanPlay: () => {
-                this.emit(PlaybackEvent.READY);
+                this.emit(PlaybackState.READY);
             },
             onPlaybackPlaying: () => {
-                this.emit(PlaybackEvent.PLAYING);
+                this.emit(PlaybackState.PLAYING);
             },
             onPlaybackPaused: () => {
-                this.emit(PlaybackEvent.PAUSED);
+                this.emit(PlaybackState.PAUSED);
             },
             onPlaybackSeeking: () => {
-                this.emit(PlaybackEvent.SEEKING);
+                this.emit(PlaybackState.SEEKING);
             },
             onFragmentLoadingStarted: () => {
-                this.emit(PlaybackEvent.BUFFERING);
+                this.emit(PlaybackState.BUFFERING);
             },
             onPlaybackEnded: () => {
-                this.emit(PlaybackEvent.ENDED);
+                this.emit(PlaybackState.ENDED);
             },
             onPlaybackTimeUpdated: () => {
-                this.emit(PlaybackEvent.TIMEUPDATE);
+                this.emit(PlaybackState.TIMEUPDATE);
             },
         };
 

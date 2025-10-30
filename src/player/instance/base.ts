@@ -1,5 +1,6 @@
 import type { BufferInfo } from '../../api/buffer-info';
-import type { PlaybackEvent, PlaybackEvents } from '../../api/playback-event';
+import type { EmitterEvent } from '../../api/event';
+import type { PlaybackState } from '../../api/playback-state';
 import mitt from '../../helpers/emitter';
 
 export type VideoPlayerEventHandlers = {
@@ -30,7 +31,7 @@ export type VideoPlayerEventHandlers = {
 
 export default abstract class VideoPlayerInstance {
     protected videoEl: HTMLVideoElement | undefined;
-    public emitter = mitt<PlaybackEvents>();
+    public emitter = mitt<EmitterEvent>();
 
     protected eventHandlers: Partial<VideoPlayerEventHandlers> | null = null;
 
@@ -59,7 +60,7 @@ export default abstract class VideoPlayerInstance {
     protected abstract registerListeners(): void;
     protected abstract unregisterListeners(): void;
 
-    public emit(event: PlaybackEvent) {
-        this.emitter.emit('playbackEvent', event);
+    public emit(state: PlaybackState) {
+        this.emitter.emit('playbackState', state);
     }
 }

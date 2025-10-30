@@ -1,5 +1,5 @@
 import type { BufferInfo } from '../../../api/buffer-info';
-import { PlaybackEvent } from '../../../api/playback-event';
+import { PlaybackState } from '../../../api/playback-state';
 import UnexpectedElementStateError from '../../../api/unexpected-element-state-error';
 import VideoPlayerInstance, { type VideoPlayerEventHandlers } from '../base';
 
@@ -27,10 +27,13 @@ export enum NativeInstanceHandler {
 
 type NativeEventHandlersMap = Pick<VideoPlayerEventHandlers, NativeInstanceHandler>;
 
-class NativeVideoPlayerInstanceTech {
-    public bufferInfo: BufferInfo = { length: 0 };
+/**
+ * @private Do not use outside of this file/module
+ */
+class _NativeVideoPlayerInstanceTech {
+    bufferInfo: BufferInfo = { length: 0 };
 
-    public updateBuffer(buffered: TimeRanges, currentTime: number) {
+    updateBuffer(buffered: TimeRanges, currentTime: number) {
         let range = 0;
 
         while (buffered.start(range) > currentTime || currentTime > buffered.end(range)) {
@@ -49,7 +52,7 @@ class NativeVideoPlayerInstanceTech {
 export class NativeVideoPlayerInstance extends VideoPlayerInstance {
     declare protected eventHandlers: NativeEventHandlersMap | null;
 
-    private tech: NativeVideoPlayerInstanceTech = new NativeVideoPlayerInstanceTech();
+    private tech = new _NativeVideoPlayerInstanceTech();
 
     public get buffer(): BufferInfo {
         return this.tech.bufferInfo;
@@ -111,25 +114,25 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
 
         this.eventHandlers = {
             onLoadstart: () => {
-                this.emit(PlaybackEvent.LOADING);
+                this.emit(PlaybackState.LOADING);
             },
             onCanplay: () => {
-                this.emit(PlaybackEvent.READY);
+                this.emit(PlaybackState.READY);
             },
             onPlaying: () => {
-                this.emit(PlaybackEvent.PLAYING);
+                this.emit(PlaybackState.PLAYING);
             },
             onPause: () => {
-                this.emit(PlaybackEvent.PAUSED);
+                this.emit(PlaybackState.PAUSED);
             },
             onSeeking: () => {
-                this.emit(PlaybackEvent.SEEKING);
+                this.emit(PlaybackState.SEEKING);
             },
             onWaiting: () => {
-                this.emit(PlaybackEvent.BUFFERING);
+                this.emit(PlaybackState.BUFFERING);
             },
             onEnded: () => {
-                this.emit(PlaybackEvent.ENDED);
+                this.emit(PlaybackState.ENDED);
             },
             onTimeupdate: () => {
                 if (!this.videoEl) {
@@ -138,7 +141,7 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
 
                 this.tech.updateBuffer(this.videoEl.buffered, this.videoEl.currentTime);
 
-                this.emit(PlaybackEvent.TIMEUPDATE);
+                this.emit(PlaybackState.TIMEUPDATE);
             },
         };
 
