@@ -14,3 +14,8 @@ function onSourceChange(event: Event) {
     player.destroy();
     player.load(videoSrc);
 }
+
+// TODO: Выводить длительность буфферизации
+// TODO: Выводить изменение состояния воспроизведения
+// TODO: Нормальное логгирование ошибок в консоль
+// TODO: Исправить ошибку при калькуляции buffered ranges
