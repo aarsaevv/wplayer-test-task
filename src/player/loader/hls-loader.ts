@@ -1,4 +1,4 @@
-import UnexpectedLoadError from './unexpected-loader-error';
+import UnexpectedLoadError from './unexpected-load-error';
 
 export function loadHlsModule() {
     if (!window.Hls) {

@@ -9,6 +9,7 @@ export type VideoPlayerEventHandlers = {
     onPause: () => void;
     onSeeking: () => void;
     onEnded: () => void;
+    onError: () => void;
     // native
     onLoadstart: () => void;
     onCanplay: () => void;
@@ -60,7 +61,7 @@ export default abstract class VideoPlayerInstance {
     protected abstract registerListeners(): void;
     protected abstract unregisterListeners(): void;
 
-    public emit(state: PlaybackState) {
-        this.emitter.emit('playbackState', state);
+    public emit(event: keyof EmitterEvent, payload: unknown) {
+        this.emitter.emit(event, payload);
     }
 }

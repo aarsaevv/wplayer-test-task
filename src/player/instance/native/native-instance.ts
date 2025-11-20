@@ -12,6 +12,7 @@ export enum NativeInstanceEvent {
     WAITING = 'waiting',
     ENDED = 'ended',
     TIMEUPDATE = 'timeupdate',
+    ERROR = 'error',
 }
 
 export enum NativeInstanceHandler {
@@ -23,6 +24,7 @@ export enum NativeInstanceHandler {
     ON_WAITING = 'onWaiting',
     ON_ENDED = 'onEnded',
     ON_TIMEUPDATE = 'onTimeupdate',
+    ON_ERROR = 'onError',
 }
 
 type NativeEventHandlersMap = Pick<VideoPlayerEventHandlers, NativeInstanceHandler>;
@@ -114,25 +116,25 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
 
         this.eventHandlers = {
             onLoadstart: () => {
-                this.emit(PlaybackState.LOADING);
+                this.emit('playbackState', { state: PlaybackState.LOADING });
             },
             onCanplay: () => {
-                this.emit(PlaybackState.READY);
+                this.emit('playbackState', { state: PlaybackState.READY });
             },
             onPlaying: () => {
-                this.emit(PlaybackState.PLAYING);
+                this.emit('playbackState', { state: PlaybackState.PLAYING });
             },
             onPause: () => {
-                this.emit(PlaybackState.PAUSED);
+                this.emit('playbackState', { state: PlaybackState.PAUSED });
             },
             onSeeking: () => {
-                this.emit(PlaybackState.SEEKING);
+                this.emit('playbackState', { state: PlaybackState.SEEKING });
             },
             onWaiting: () => {
-                this.emit(PlaybackState.BUFFERING);
+                this.emit('playbackState', { state: PlaybackState.BUFFERING });
             },
             onEnded: () => {
-                this.emit(PlaybackState.ENDED);
+                this.emit('playbackState', { state: PlaybackState.ENDED });
             },
             onTimeupdate: () => {
                 if (!this.videoEl) {
@@ -141,8 +143,11 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
 
                 this.tech.updateBuffer(this.videoEl.buffered, this.videoEl.currentTime);
 
-                this.emit(PlaybackState.TIMEUPDATE);
+                this.emit('playbackState', { state: PlaybackState.TIMEUPDATE });
             },
+            onError: () => {
+                this.emit('error', payload);
+            }
         };
 
         this.videoEl.addEventListener(NativeInstanceEvent.LOADSTART, this.eventHandlers.onLoadstart);
@@ -153,6 +158,7 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
         this.videoEl.addEventListener(NativeInstanceEvent.WAITING, this.eventHandlers.onWaiting);
         this.videoEl.addEventListener(NativeInstanceEvent.ENDED, this.eventHandlers.onEnded);
         this.videoEl.addEventListener(NativeInstanceEvent.TIMEUPDATE, this.eventHandlers.onTimeupdate);
+        this.videoEl.addEventListener(NativeInstanceEvent.ERROR, this.eventHandlers.onError);
     }
 
     protected unregisterListeners() {
@@ -168,6 +174,7 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
         this.videoEl.removeEventListener(NativeInstanceEvent.WAITING, this.eventHandlers.onWaiting);
         this.videoEl.removeEventListener(NativeInstanceEvent.ENDED, this.eventHandlers.onEnded);
         this.videoEl.removeEventListener(NativeInstanceEvent.TIMEUPDATE, this.eventHandlers.onTimeupdate);
+        this.videoEl.removeEventListener(NativeInstanceEvent.ERROR, this.eventHandlers.onError);
 
         this.eventHandlers = null;
     }

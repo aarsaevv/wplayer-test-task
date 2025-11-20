@@ -60,6 +60,8 @@ export default class VideoPlayer {
             this.instance.emitter.on('playbackState', (state: PlaybackState) => {
                 this.setCurrentPlaybackState(state);
             });
+
+            this.instance.emitter.on('error', () => {});
         }
     }
 
@@ -68,6 +70,7 @@ export default class VideoPlayer {
             this.instance.destroy();
 
             this.instance.emitter.off('playbackState');
+            this.instance.emitter.off('error');
 
             this.instance = null;
         }

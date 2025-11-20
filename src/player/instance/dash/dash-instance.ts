@@ -11,6 +11,7 @@ export enum DashInstanceEvent {
     FRAGMENT_LOADING_STARTED = 'fragmentLoadingStarted',
     PLAYBACK_ENDED = 'playbackEnded',
     PLAYBACK_TIME_UPDATED = 'playbackTimeUpdated',
+    ERROR = 'error',
 }
 
 export enum DashInstanceHandler {
@@ -22,6 +23,7 @@ export enum DashInstanceHandler {
     ON_FRAGMENT_LOADING_STARTED = 'onFragmentLoadingStarted',
     ON_PLAYBACK_ENDED = 'onPlaybackEnded',
     ON_PLAYBACK_TIME_UPDATED = 'onPlaybackTimeUpdated',
+    ON_ERROR = 'onError',
 }
 
 type DashEventHandlers = Pick<VideoPlayerEventHandlers, DashInstanceHandler>;
@@ -70,29 +72,32 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
     protected registerListeners() {
         this.eventHandlers = {
             onManifestLoadingStarted: () => {
-                this.emit(PlaybackState.LOADING);
+                this.emit('playbackState', { state: PlaybackState.LOADING });
             },
             onCanPlay: () => {
-                this.emit(PlaybackState.READY);
+                this.emit('playbackState', { state: PlaybackState.READY });
             },
             onPlaybackPlaying: () => {
-                this.emit(PlaybackState.PLAYING);
+                this.emit('playbackState', { state: PlaybackState.PLAYING });
             },
             onPlaybackPaused: () => {
-                this.emit(PlaybackState.PAUSED);
+                this.emit('playbackState', { state: PlaybackState.PAUSED });
             },
             onPlaybackSeeking: () => {
-                this.emit(PlaybackState.SEEKING);
+                this.emit('playbackState', { state: PlaybackState.SEEKING });
             },
             onFragmentLoadingStarted: () => {
-                this.emit(PlaybackState.BUFFERING);
+                this.emit('playbackState', { state: PlaybackState.BUFFERING });
             },
             onPlaybackEnded: () => {
-                this.emit(PlaybackState.ENDED);
+                this.emit('playbackState', { state: PlaybackState.ENDED });
             },
             onPlaybackTimeUpdated: () => {
-                this.emit(PlaybackState.TIMEUPDATE);
+                this.emit('playbackState', { state: PlaybackState.TIMEUPDATE });
             },
+            onError: () => {
+                this.emit('error', payload);
+            }
         };
 
         this.tech.on(DashInstanceEvent.MANIFEST_LOADING_STARTED, this.eventHandlers.onManifestLoadingStarted);
@@ -103,6 +108,7 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
         this.tech.on(DashInstanceEvent.FRAGMENT_LOADING_STARTED, this.eventHandlers.onFragmentLoadingStarted);
         this.tech.on(DashInstanceEvent.PLAYBACK_ENDED, this.eventHandlers.onPlaybackEnded);
         this.tech.on(DashInstanceEvent.PLAYBACK_TIME_UPDATED, this.eventHandlers.onPlaybackTimeUpdated);
+        this.tech.on(DashInstanceEvent.ERROR, this.eventHandlers.onError);
     }
 
     protected unregisterListeners() {
@@ -118,6 +124,7 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
         this.tech.off(DashInstanceEvent.FRAGMENT_LOADING_STARTED, this.eventHandlers.onFragmentLoadingStarted);
         this.tech.off(DashInstanceEvent.PLAYBACK_ENDED, this.eventHandlers.onPlaybackEnded);
         this.tech.off(DashInstanceEvent.PLAYBACK_TIME_UPDATED, this.eventHandlers.onPlaybackTimeUpdated);
+        this.tech.off(DashInstanceEvent.ERROR, this.eventHandlers.onError);
 
         this.eventHandlers = null;
     }

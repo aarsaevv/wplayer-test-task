@@ -18,3 +18,7 @@ export enum PlaybackState {
     //
     TIMEUPDATE = 'TIMEUPDATE',
 }
+
+export type PlaybackStatePayload = {
+    state: PlaybackState;
+}

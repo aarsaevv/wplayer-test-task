@@ -7,6 +7,7 @@ export enum HlsInstanceEvent {
     MANIFEST_LOADING = 'hlsManifestLoading',
     MANIFEST_PARSED = 'hlsManifestParsed',
     FRAG_LOADING = 'hlsFragLoading',
+    ERROR = 'hlsError',
     PLAYING = 'playing',
     PAUSE = 'pause',
     SEEKING = 'seeking',
@@ -18,6 +19,7 @@ export enum HlsInstanceHandler {
     ON_MANIFEST_LOADING = 'onManifestLoading',
     ON_MANIFEST_PARSED = 'onManifestParsed',
     ON_FRAG_LOADING = 'onFragLoading',
+    ON_ERROR = 'onError',
     ON_PLAYING = 'onPlaying',
     ON_PAUSE = 'onPause',
     ON_SEEKING = 'onSeeking',
@@ -96,31 +98,35 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
                 this.emit(PlaybackState.LOADING);
             },
             onManifestParsed: () => {
-                this.emit(PlaybackState.READY);
+                this.emit('playbackState', { state: PlaybackState.READY });
             },
             onFragLoading: () => {
-                this.emit(PlaybackState.BUFFERING);
+                this.emit('playbackState', { state: PlaybackState.BUFFERING });
             },
             onPlaying: () => {
-                this.emit(PlaybackState.PLAYING);
+                this.emit('playbackState', { state: PlaybackState.PLAYING });
             },
             onPause: () => {
-                this.emit(PlaybackState.PAUSED);
+                this.emit('playbackState', { state: PlaybackState.PAUSED });
             },
             onSeeking: () => {
-                this.emit(PlaybackState.SEEKING);
+                this.emit('playbackState', { state: PlaybackState.SEEKING });
             },
             onEnded: () => {
-                this.emit(PlaybackState.ENDED);
+                this.emit('playbackState', { state: PlaybackState.ENDED });
             },
             onTimeupdate: () => {
-                this.emit(PlaybackState.TIMEUPDATE);
+                this.emit('playbackState', { state: PlaybackState.TIMEUPDATE });
             },
+            onError: () => {
+                this.emit('error', payload);
+            }
         };
 
         this.tech.on(HlsInstanceEvent.MANIFEST_LOADING, this.eventHandlers.onManifestLoading);
         this.tech.on(HlsInstanceEvent.MANIFEST_PARSED, this.eventHandlers.onManifestParsed);
         this.tech.on(HlsInstanceEvent.FRAG_LOADING, this.eventHandlers.onFragLoading);
+        this.tech.on(HlsInstanceEvent.ERROR, this.eventHandlers.onError);
 
         this.videoEl.addEventListener(HlsInstanceEvent.PLAYING, this.eventHandlers.onPlaying);
         this.videoEl.addEventListener(HlsInstanceEvent.PAUSE, this.eventHandlers.onPause);
@@ -136,6 +142,7 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
         this.tech.off(HlsInstanceEvent.MANIFEST_LOADING, this.eventHandlers.onManifestLoading);
         this.tech.off(HlsInstanceEvent.MANIFEST_PARSED, this.eventHandlers.onManifestParsed);
         this.tech.off(HlsInstanceEvent.FRAG_LOADING, this.eventHandlers.onFragLoading);
+        this.tech.off(HlsInstanceEvent.ERROR, this.eventHandlers.onError);
 
         this.videoEl.removeEventListener(HlsInstanceEvent.PLAYING, this.eventHandlers.onPlaying);
         this.videoEl.removeEventListener(HlsInstanceEvent.PAUSE, this.eventHandlers.onPause);
