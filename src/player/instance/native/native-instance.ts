@@ -2,7 +2,7 @@ import type { BufferInfo } from '../../../api/buffer-info';
 import { PlaybackState } from '../../../api/playback-state';
 import UnexpectedElementStateError from '../../../api/unexpected-element-state-error';
 import type { NativeErrorMetadata } from '../../../api/error-metadata';
-import VideoPlayerInstance, { type VideoPlayerEventHandlers } from '../base';
+import VideoPlayerInstance from '../base';
 
 export enum NativeInstanceEvent {
     LOADSTART = 'loadstart',
@@ -28,8 +28,6 @@ export enum NativeInstanceHandler {
     ON_ERROR = 'onError',
 }
 
-type NativeEventHandlersMap = Pick<VideoPlayerEventHandlers, NativeInstanceHandler>;
-
 /**
  * @private Do not use outside of this file/module
  */
@@ -53,7 +51,7 @@ class _NativeVideoPlayerInstanceTech {
 }
 
 export class NativeVideoPlayerInstance extends VideoPlayerInstance {
-    declare protected eventHandlers: NativeEventHandlersMap | null;
+    declare protected abortController: AbortController | null;
 
     private tech = new _NativeVideoPlayerInstanceTech();
 
@@ -115,29 +113,47 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
             throw new UnexpectedElementStateError('videoEl');
         }
 
-        this.eventHandlers = {
-            onLoadstart: () => {
-                this.emit('playbackState', { state: PlaybackState.LOADING });
-            },
-            onCanplay: () => {
-                this.emit('playbackState', { state: PlaybackState.READY });
-            },
-            onPlaying: () => {
-                this.emit('playbackState', { state: PlaybackState.PLAYING });
-            },
-            onPause: () => {
-                this.emit('playbackState', { state: PlaybackState.PAUSED });
-            },
-            onSeeking: () => {
-                this.emit('playbackState', { state: PlaybackState.SEEKING });
-            },
-            onWaiting: () => {
-                this.emit('playbackState', { state: PlaybackState.BUFFERING });
-            },
-            onEnded: () => {
-                this.emit('playbackState', { state: PlaybackState.ENDED });
-            },
-            onTimeupdate: () => {
+        this.abortController = new AbortController();
+        const { signal } = this.abortController;
+
+        this.videoEl.addEventListener(
+            NativeInstanceEvent.LOADSTART,
+            () => this.emit('playbackState', { state: PlaybackState.LOADING }),
+            { signal }
+        );
+        this.videoEl.addEventListener(
+            NativeInstanceEvent.CANPLAY,
+            () => this.emit('playbackState', { state: PlaybackState.READY }),
+            { signal }
+        );
+        this.videoEl.addEventListener(
+            NativeInstanceEvent.PLAYING,
+            () => this.emit('playbackState', { state: PlaybackState.PLAYING }),
+            { signal }
+        );
+        this.videoEl.addEventListener(
+            NativeInstanceEvent.PAUSE,
+            () => this.emit('playbackState', { state: PlaybackState.PAUSED }),
+            { signal }
+        );
+        this.videoEl.addEventListener(
+            NativeInstanceEvent.SEEKING,
+            () => this.emit('playbackState', { state: PlaybackState.SEEKING }),
+            { signal }
+        );
+        this.videoEl.addEventListener(
+            NativeInstanceEvent.WAITING,
+            () => this.emit('playbackState', { state: PlaybackState.BUFFERING }),
+            { signal }
+        );
+        this.videoEl.addEventListener(
+            NativeInstanceEvent.ENDED,
+            () => this.emit('playbackState', { state: PlaybackState.ENDED }),
+            { signal }
+        );
+        this.videoEl.addEventListener(
+            NativeInstanceEvent.TIMEUPDATE,
+            () => {
                 if (!this.videoEl) {
                     throw new UnexpectedElementStateError('videoEl');
                 }
@@ -146,7 +162,11 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
 
                 this.emit('playbackState', { state: PlaybackState.TIMEUPDATE });
             },
-            onError: () => {
+            { signal }
+        );
+        this.videoEl.addEventListener(
+            NativeInstanceEvent.ERROR,
+            () => {
                 if (!this.videoEl?.error) {
                     return;
                 }
@@ -166,34 +186,15 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
                 };
                 this.emit('error', errorData);
             },
-        };
-
-        this.videoEl.addEventListener(NativeInstanceEvent.LOADSTART, this.eventHandlers.onLoadstart);
-        this.videoEl.addEventListener(NativeInstanceEvent.CANPLAY, this.eventHandlers.onCanplay);
-        this.videoEl.addEventListener(NativeInstanceEvent.PLAYING, this.eventHandlers.onPlaying);
-        this.videoEl.addEventListener(NativeInstanceEvent.PAUSE, this.eventHandlers.onPause);
-        this.videoEl.addEventListener(NativeInstanceEvent.SEEKING, this.eventHandlers.onSeeking);
-        this.videoEl.addEventListener(NativeInstanceEvent.WAITING, this.eventHandlers.onWaiting);
-        this.videoEl.addEventListener(NativeInstanceEvent.ENDED, this.eventHandlers.onEnded);
-        this.videoEl.addEventListener(NativeInstanceEvent.TIMEUPDATE, this.eventHandlers.onTimeupdate);
-        this.videoEl.addEventListener(NativeInstanceEvent.ERROR, this.eventHandlers.onError);
+            { signal }
+        );
     }
 
     protected unregisterListeners() {
-        if (!this.videoEl || !this.eventHandlers) {
+        if (!this.videoEl) {
             return;
         }
 
-        this.videoEl.removeEventListener(NativeInstanceEvent.LOADSTART, this.eventHandlers.onLoadstart);
-        this.videoEl.removeEventListener(NativeInstanceEvent.CANPLAY, this.eventHandlers.onCanplay);
-        this.videoEl.removeEventListener(NativeInstanceEvent.PLAYING, this.eventHandlers.onPlaying);
-        this.videoEl.removeEventListener(NativeInstanceEvent.PAUSE, this.eventHandlers.onPause);
-        this.videoEl.removeEventListener(NativeInstanceEvent.SEEKING, this.eventHandlers.onSeeking);
-        this.videoEl.removeEventListener(NativeInstanceEvent.WAITING, this.eventHandlers.onWaiting);
-        this.videoEl.removeEventListener(NativeInstanceEvent.ENDED, this.eventHandlers.onEnded);
-        this.videoEl.removeEventListener(NativeInstanceEvent.TIMEUPDATE, this.eventHandlers.onTimeupdate);
-        this.videoEl.removeEventListener(NativeInstanceEvent.ERROR, this.eventHandlers.onError);
-
-        this.eventHandlers = null;
+        this.abortController?.abort();
     }
 }

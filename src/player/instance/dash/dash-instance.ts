@@ -96,7 +96,7 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
             onPlaybackTimeUpdated: () => {
                 this.emit('playbackState', { state: PlaybackState.TIMEUPDATE });
             },
-            onError: (event: unknown) => {
+            onError: (event: any) => {
                 const errorData: DashErrorMetadata = {
                     type: event.error?.code || 'UNKNOWN_ERROR',
                     details: event.error?.message || 'An error occurred',

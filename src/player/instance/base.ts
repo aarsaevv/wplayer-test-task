@@ -3,16 +3,6 @@ import type { EmitterEvent } from '../../api/event';
 import mitt from '../../helpers/emitter';
 
 export type VideoPlayerEventHandlers = {
-    // common
-    onPlaying: () => void;
-    onPause: () => void;
-    onSeeking: () => void;
-    onEnded: () => void;
-    // native
-    onLoadstart: () => void;
-    onCanplay: () => void;
-    onWaiting: () => void;
-    onTimeupdate: () => void;
     // dash
     onManifestLoadingStarted: () => void;
     onCanPlay: () => void;

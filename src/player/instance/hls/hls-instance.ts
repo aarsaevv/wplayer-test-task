@@ -14,7 +14,6 @@ export enum HlsInstanceEvent {
     SEEKING = 'seeking',
     ENDED = 'ended',
     TIMEUPDATE = 'timeupdate',
-    ERROR = 'hlsError',
 }
 
 export enum HlsInstanceHandler {
@@ -22,18 +21,13 @@ export enum HlsInstanceHandler {
     ON_MANIFEST_PARSED = 'onManifestParsed',
     ON_FRAG_LOADING = 'onFragLoading',
     ON_ERROR = 'onError',
-    ON_PLAYING = 'onPlaying',
-    ON_PAUSE = 'onPause',
-    ON_SEEKING = 'onSeeking',
-    ON_ENDED = 'onEnded',
-    ON_TIMEUPDATE = 'onTimeupdate',
-    ON_ERROR = 'onError',
 }
 
 type HlsEventHandlers = Pick<VideoPlayerEventHandlers, HlsInstanceHandler>;
 
 export class HlsVideoPlayerInstance extends VideoPlayerInstance {
     declare protected eventHandlers: HlsEventHandlers | null;
+    declare protected abortController: AbortController | null;
 
     private tech: typeof window.Hls;
 
@@ -106,21 +100,6 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
             onFragLoading: () => {
                 this.emit('playbackState', { state: PlaybackState.BUFFERING });
             },
-            onPlaying: () => {
-                this.emit('playbackState', { state: PlaybackState.PLAYING });
-            },
-            onPause: () => {
-                this.emit('playbackState', { state: PlaybackState.PAUSED });
-            },
-            onSeeking: () => {
-                this.emit('playbackState', { state: PlaybackState.SEEKING });
-            },
-            onEnded: () => {
-                this.emit('playbackState', { state: PlaybackState.ENDED });
-            },
-            onTimeupdate: () => {
-                this.emit('playbackState', { state: PlaybackState.TIMEUPDATE });
-            },
             onError: (_: string, data: any) => {
                 const errorData: HlsErrorMetadata = {
                     type: data.type,
@@ -132,16 +111,39 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
             },
         };
 
+        this.abortController = new AbortController();
+        const { signal } = this.abortController;
+
         this.tech.on(HlsInstanceEvent.MANIFEST_LOADING, this.eventHandlers.onManifestLoading);
         this.tech.on(HlsInstanceEvent.MANIFEST_PARSED, this.eventHandlers.onManifestParsed);
         this.tech.on(HlsInstanceEvent.FRAG_LOADING, this.eventHandlers.onFragLoading);
         this.tech.on(HlsInstanceEvent.ERROR, this.eventHandlers.onError);
 
-        this.videoEl.addEventListener(HlsInstanceEvent.PLAYING, this.eventHandlers.onPlaying);
-        this.videoEl.addEventListener(HlsInstanceEvent.PAUSE, this.eventHandlers.onPause);
-        this.videoEl.addEventListener(HlsInstanceEvent.SEEKING, this.eventHandlers.onSeeking);
-        this.videoEl.addEventListener(HlsInstanceEvent.ENDED, this.eventHandlers.onEnded);
-        this.videoEl.addEventListener(HlsInstanceEvent.TIMEUPDATE, this.eventHandlers.onTimeupdate);
+        this.videoEl.addEventListener(
+            HlsInstanceEvent.PLAYING,
+            () => this.emit('playbackState', { state: PlaybackState.PLAYING }),
+            { signal }
+        );
+        this.videoEl.addEventListener(
+            HlsInstanceEvent.PAUSE,
+            () => this.emit('playbackState', { state: PlaybackState.PAUSED }),
+            { signal }
+        );
+        this.videoEl.addEventListener(
+            HlsInstanceEvent.SEEKING,
+            () => this.emit('playbackState', { state: PlaybackState.SEEKING }),
+            { signal }
+        );
+        this.videoEl.addEventListener(
+            HlsInstanceEvent.ENDED,
+            () => this.emit('playbackState', { state: PlaybackState.ENDED }),
+            { signal }
+        );
+        this.videoEl.addEventListener(
+            HlsInstanceEvent.TIMEUPDATE,
+            () => this.emit('playbackState', { state: PlaybackState.TIMEUPDATE }),
+            { signal }
+        );
     }
     protected unregisterListeners() {
         if (!this.videoEl || !this.eventHandlers) {
@@ -153,11 +155,7 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
         this.tech.off(HlsInstanceEvent.FRAG_LOADING, this.eventHandlers.onFragLoading);
         this.tech.off(HlsInstanceEvent.ERROR, this.eventHandlers.onError);
 
-        this.videoEl.removeEventListener(HlsInstanceEvent.PLAYING, this.eventHandlers.onPlaying);
-        this.videoEl.removeEventListener(HlsInstanceEvent.PAUSE, this.eventHandlers.onPause);
-        this.videoEl.removeEventListener(HlsInstanceEvent.SEEKING, this.eventHandlers.onSeeking);
-        this.videoEl.removeEventListener(HlsInstanceEvent.ENDED, this.eventHandlers.onEnded);
-        this.videoEl.removeEventListener(HlsInstanceEvent.TIMEUPDATE, this.eventHandlers.onTimeupdate);
+        this.abortController?.abort();
 
         this.eventHandlers = null;
     }
