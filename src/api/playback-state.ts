@@ -15,10 +15,10 @@ export enum PlaybackState {
     BUFFERING = 'BUFFERING',
     // воспроизведение окончено
     ENDED = 'ENDED',
-    //
+    // время воспроизведения изменилось
     TIMEUPDATE = 'TIMEUPDATE',
 }
 
-export type PlaybackStatePayload = {
+export type VideoPlayerPlaybackMetadata = {
     state: PlaybackState;
-}
+};

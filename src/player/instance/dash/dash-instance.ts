@@ -1,4 +1,5 @@
 import { PlaybackState } from '../../../api/playback-state';
+import type { DashErrorMetadata } from '../../../api/error-metadata';
 import { loadDashModule } from '../../loader/dash-loader';
 import VideoPlayerInstance, { type VideoPlayerEventHandlers } from '../base';
 
@@ -95,9 +96,15 @@ export class DashVideoPlayerInstance extends VideoPlayerInstance {
             onPlaybackTimeUpdated: () => {
                 this.emit('playbackState', { state: PlaybackState.TIMEUPDATE });
             },
-            onError: () => {
-                this.emit('error', payload);
-            }
+            onError: (event: unknown) => {
+                const errorData: DashErrorMetadata = {
+                    type: event.error?.code || 'UNKNOWN_ERROR',
+                    details: event.error?.message || 'An error occurred',
+                    fatal: true,
+                    error: event.error,
+                };
+                this.emit('error', errorData);
+            },
         };
 
         this.tech.on(DashInstanceEvent.MANIFEST_LOADING_STARTED, this.eventHandlers.onManifestLoadingStarted);

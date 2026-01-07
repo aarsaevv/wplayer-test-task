@@ -1,6 +1,7 @@
 import type { BufferInfo } from '../../../api/buffer-info';
 import { PlaybackState } from '../../../api/playback-state';
 import UnexpectedElementStateError from '../../../api/unexpected-element-state-error';
+import type { NativeErrorMetadata } from '../../../api/error-metadata';
 import VideoPlayerInstance, { type VideoPlayerEventHandlers } from '../base';
 
 export enum NativeInstanceEvent {
@@ -146,8 +147,25 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
                 this.emit('playbackState', { state: PlaybackState.TIMEUPDATE });
             },
             onError: () => {
-                this.emit('error', payload);
-            }
+                if (!this.videoEl?.error) {
+                    return;
+                }
+
+                const errorTypes: Record<number, string> = {
+                    1: 'MEDIA_ERR_ABORTED',
+                    2: 'MEDIA_ERR_NETWORK',
+                    3: 'MEDIA_ERR_DECODE',
+                    4: 'MEDIA_ERR_SRC_NOT_SUPPORTED',
+                };
+
+                const errorData: NativeErrorMetadata = {
+                    type: errorTypes[this.videoEl.error.code] || 'MEDIA_ERR_UNKNOWN',
+                    details: this.videoEl.error.message,
+                    fatal: true,
+                    code: this.videoEl.error.code,
+                };
+                this.emit('error', errorData);
+            },
         };
 
         this.videoEl.addEventListener(NativeInstanceEvent.LOADSTART, this.eventHandlers.onLoadstart);

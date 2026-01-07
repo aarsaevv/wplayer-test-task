@@ -1,5 +1,6 @@
 import { PlaybackState } from '../../../api/playback-state';
 import UnexpectedElementStateError from '../../../api/unexpected-element-state-error';
+import type { HlsErrorMetadata } from '../../../api/error-metadata';
 import { loadHlsModule } from '../../loader/hls-loader';
 import VideoPlayerInstance, { type VideoPlayerEventHandlers } from '../base';
 
@@ -13,6 +14,7 @@ export enum HlsInstanceEvent {
     SEEKING = 'seeking',
     ENDED = 'ended',
     TIMEUPDATE = 'timeupdate',
+    ERROR = 'hlsError',
 }
 
 export enum HlsInstanceHandler {
@@ -25,6 +27,7 @@ export enum HlsInstanceHandler {
     ON_SEEKING = 'onSeeking',
     ON_ENDED = 'onEnded',
     ON_TIMEUPDATE = 'onTimeupdate',
+    ON_ERROR = 'onError',
 }
 
 type HlsEventHandlers = Pick<VideoPlayerEventHandlers, HlsInstanceHandler>;
@@ -95,7 +98,7 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
 
         this.eventHandlers = {
             onManifestLoading: () => {
-                this.emit(PlaybackState.LOADING);
+                this.emit('playbackState', { state: PlaybackState.LOADING });
             },
             onManifestParsed: () => {
                 this.emit('playbackState', { state: PlaybackState.READY });
@@ -118,9 +121,15 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
             onTimeupdate: () => {
                 this.emit('playbackState', { state: PlaybackState.TIMEUPDATE });
             },
-            onError: () => {
-                this.emit('error', payload);
-            }
+            onError: (_: string, data: any) => {
+                const errorData: HlsErrorMetadata = {
+                    type: data.type,
+                    details: data.details,
+                    fatal: data.fatal,
+                    error: data.error,
+                };
+                this.emit('error', errorData);
+            },
         };
 
         this.tech.on(HlsInstanceEvent.MANIFEST_LOADING, this.eventHandlers.onManifestLoading);

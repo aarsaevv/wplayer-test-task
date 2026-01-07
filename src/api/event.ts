@@ -1,6 +1,7 @@
-import type { PlaybackState } from './playback-state';
+import type { VideoPlayerPlaybackMetadata } from './playback-state';
+import type { VideoPlayerErrorMetadata } from './error-metadata';
 
 export type EmitterEvent = {
-    playbackState: PlaybackState;
-    error: Error;
+    playbackState: VideoPlayerPlaybackMetadata;
+    error: VideoPlayerErrorMetadata;
 };

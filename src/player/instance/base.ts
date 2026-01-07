@@ -1,6 +1,5 @@
 import type { BufferInfo } from '../../api/buffer-info';
 import type { EmitterEvent } from '../../api/event';
-import type { PlaybackState } from '../../api/playback-state';
 import mitt from '../../helpers/emitter';
 
 export type VideoPlayerEventHandlers = {
@@ -9,7 +8,6 @@ export type VideoPlayerEventHandlers = {
     onPause: () => void;
     onSeeking: () => void;
     onEnded: () => void;
-    onError: () => void;
     // native
     onLoadstart: () => void;
     onCanplay: () => void;
@@ -28,6 +26,8 @@ export type VideoPlayerEventHandlers = {
     onManifestLoading: () => void;
     onManifestParsed: () => void;
     onFragLoading: () => void;
+    // error
+    onError: (...args: any[]) => void;
 };
 
 export default abstract class VideoPlayerInstance {
@@ -61,7 +61,7 @@ export default abstract class VideoPlayerInstance {
     protected abstract registerListeners(): void;
     protected abstract unregisterListeners(): void;
 
-    public emit(event: keyof EmitterEvent, payload: unknown) {
+    public emit<K extends keyof EmitterEvent>(event: K, payload: EmitterEvent[K]): void {
         this.emitter.emit(event, payload);
     }
 }

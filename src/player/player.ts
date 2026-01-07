@@ -1,5 +1,5 @@
 import VideoPlayerInstance from './instance/base';
-import { PlaybackState } from '../api/playback-state';
+import { PlaybackState, type VideoPlayerPlaybackMetadata } from '../api/playback-state';
 import detectSourceType from '../helpers/detect-source-type';
 import { throttle } from '../helpers/async';
 import createVideoPlayerInstance from './instance/create-instance';
@@ -35,7 +35,6 @@ export default class VideoPlayer {
         }
 
         this.currentPlaybackState = state;
-        console.info('currentPlaybackState:', this.currentPlaybackState);
     }
 
     async load(src: string) {
@@ -57,7 +56,10 @@ export default class VideoPlayer {
             this.instance.load(src);
             this.instance.play();
 
-            this.instance.emitter.on('playbackState', (state: PlaybackState) => {
+            this.instance.emitter.on('playbackState', (metadata: VideoPlayerPlaybackMetadata) => {
+                console.info('playbackState:', metadata);
+
+                const { state } = metadata;
                 this.setCurrentPlaybackState(state);
             });
 
