@@ -90,6 +90,9 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
             throw new UnexpectedElementStateError('videoEl');
         }
 
+        this.abortController = new AbortController();
+        const { signal } = this.abortController;
+
         this.eventHandlers = {
             onManifestLoading: () => {
                 this.emit('playbackState', { state: PlaybackState.LOADING });
@@ -110,9 +113,6 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
                 this.emit('error', errorData);
             },
         };
-
-        this.abortController = new AbortController();
-        const { signal } = this.abortController;
 
         this.tech.on(HlsInstanceEvent.MANIFEST_LOADING, this.eventHandlers.onManifestLoading);
         this.tech.on(HlsInstanceEvent.MANIFEST_PARSED, this.eventHandlers.onManifestParsed);
@@ -150,12 +150,12 @@ export class HlsVideoPlayerInstance extends VideoPlayerInstance {
             return;
         }
 
+        this.abortController?.abort();
+
         this.tech.off(HlsInstanceEvent.MANIFEST_LOADING, this.eventHandlers.onManifestLoading);
         this.tech.off(HlsInstanceEvent.MANIFEST_PARSED, this.eventHandlers.onManifestParsed);
         this.tech.off(HlsInstanceEvent.FRAG_LOADING, this.eventHandlers.onFragLoading);
         this.tech.off(HlsInstanceEvent.ERROR, this.eventHandlers.onError);
-
-        this.abortController?.abort();
 
         this.eventHandlers = null;
     }
