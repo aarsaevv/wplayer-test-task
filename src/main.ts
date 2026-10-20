@@ -2,8 +2,18 @@ import VideoPlayer from './player/player';
 
 const videoEl = document.getElementById('root-video') as HTMLVideoElement;
 const selectEl = document.getElementById('select-video')!;
+const stateEl = document.getElementById('playback-state')!;
+const bufferEl = document.getElementById('buffer-duration')!;
 
 const player = new VideoPlayer(videoEl);
+
+player.emitter.on('playbackState', ({ state }) => {
+    stateEl.textContent = state;
+});
+
+player.emitter.on('bufferInfo', ({ length }) => {
+    bufferEl.textContent = length.toFixed(2);
+});
 
 selectEl.addEventListener('change', onSourceChange);
 
@@ -11,11 +21,5 @@ function onSourceChange(event: Event) {
     const target = event.target as HTMLSelectElement;
     const videoSrc = target.value;
 
-    player.destroy();
     player.load(videoSrc);
 }
-
-// TODO: Выводить длительность буфферизации
-// TODO: Выводить изменение состояния воспроизведения
-// TODO: Логгирование ошибок в консоль ---> перетащить код с рабочей машины
-// TODO: Исправить ошибку при калькуляции buffered ranges

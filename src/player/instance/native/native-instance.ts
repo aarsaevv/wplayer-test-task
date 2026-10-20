@@ -28,35 +28,28 @@ export enum NativeInstanceHandler {
     ON_ERROR = 'onError',
 }
 
-/**
- * @private Do not use outside of this file/module
- */
-class _NativeVideoPlayerInstanceTech {
-    bufferInfo: BufferInfo = { length: 0 };
-
-    updateBuffer(buffered: TimeRanges, currentTime: number) {
-        let range = 0;
-
-        while (buffered.start(range) > currentTime || currentTime > buffered.end(range)) {
-            range += 1;
-        }
-
-        const bufferStart = buffered.start(range);
-        const bufferEnd = buffered.end(range);
-
-        const length = bufferEnd - bufferStart;
-
-        this.bufferInfo = { length };
-    }
-}
-
 export class NativeVideoPlayerInstance extends VideoPlayerInstance {
     declare protected abortController: AbortController | null;
 
-    private tech = new _NativeVideoPlayerInstanceTech();
+    private bufferInfo: BufferInfo = { length: 0 };
 
     public get buffer(): BufferInfo {
-        return this.tech.bufferInfo;
+        return this.bufferInfo;
+    }
+
+    private updateBuffer(buffered: TimeRanges, currentTime: number) {
+        let range = 0;
+
+        while (range < buffered.length && (currentTime < buffered.start(range) || currentTime > buffered.end(range))) {
+            range += 1;
+        }
+
+        if (range >= buffered.length) {
+            this.bufferInfo = { length: 0 };
+            return;
+        }
+
+        this.bufferInfo = { length: buffered.end(range) - buffered.start(range) };
     }
 
     public init() {
@@ -158,7 +151,7 @@ export class NativeVideoPlayerInstance extends VideoPlayerInstance {
                     throw new UnexpectedElementStateError('videoEl');
                 }
 
-                this.tech.updateBuffer(this.videoEl.buffered, this.videoEl.currentTime);
+                this.updateBuffer(this.videoEl.buffered, this.videoEl.currentTime);
 
                 this.emit('playbackState', { state: PlaybackState.TIMEUPDATE });
             },

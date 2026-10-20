@@ -4,21 +4,27 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>wplayer-test-task</title>
-      <script type="module" crossorigin src="/assets/index-Bty-y8XD.js"></script>
+      <script type="module" crossorigin src="/assets/index-2bWcyyu7.js"></script>
     </head>
     <body>
         <div class="app-wrapper">
             <video id="root-video" controls width="640" height="360" src=""></video>
-            <div>
-                <label for="select-video">Choose a video from list:</label>
-                <select name="videos" id="select-video">
-                    <option value="" selected>NONE</option>
-                    <option value="https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd">DASH</option>
-                    <option value="https://storage.googleapis.com/shaka-demo-assets/bbb-dark-truths-hls/hls.m3u8">
-                        HLS
-                    </option>
-                    <option value="https://media.w3.org/2010/05/sintel/trailer.mp4">MP4</option>
-                </select>
+            <div class="player-meta">
+                <div>
+                    <label for="select-video">Choose a video from list:</label>
+                    <select name="videos" id="select-video">
+                        <option value="" selected>NONE</option>
+                        <option value="https://storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd">
+                            DASH
+                        </option>
+                        <option value="https://storage.googleapis.com/shaka-demo-assets/bbb-dark-truths-hls/hls.m3u8">
+                            HLS
+                        </option>
+                        <option value="https://media.w3.org/2010/05/sintel/trailer.mp4">MP4</option>
+                    </select>
+                </div>
+                <p>Playback state: <span id="playback-state">IDLE</span></p>
+                <p>Buffer duration: <span id="buffer-duration">0.00</span> s</p>
             </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/dashjs@5.0.3/dist/legacy/umd/dash.all.min.js"></script>
